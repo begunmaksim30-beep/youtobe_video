@@ -3,79 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yodex Proxy | Видео без границ</title>
+    <title>Yodex Premium | Ultimate</title>
     <style>
-        :root { --primary: #00ff88; --bg: #050505; --surface: #111; --text: #eee; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; }
-        header { width: 100%; padding: 20px 0; background: var(--surface); text-align: center; border-bottom: 2px solid var(--primary); box-shadow: 0 0 20px rgba(0,255,136,0.2); }
-        .main-container { width: 95%; max-width: 1000px; padding: 20px; }
-        .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
-        input { flex: 1; background: #222; border: 1px solid var(--primary); color: white; padding: 12px; border-radius: 8px; outline: none; }
-        button { background: var(--primary); color: #000; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        button:hover { background: #fff; box-shadow: 0 0 15px var(--primary); }
+        :root {
+            --primary: #00ffa3;
+            --bg: #0a0a0a;
+            --card: #141414;
+            --text: #ffffff;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            transition: var(--transition);
+        }
+
+        .theme-picker { margin-top: 20px; display: flex; gap: 10px; }
+        .dot { width: 20px; height: 20px; border-radius: 50%; cursor: pointer; border: 2px solid white; }
+
+        header { text-align: center; padding: 30px 0; animation: fadeInDown 0.8s ease; }
+        h1 { font-size: 2.5rem; letter-spacing: -1px; background: linear-gradient(90deg, #00ffa3, #00bcff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; }
+
+        .container { width: 90%; max-width: 1000px; opacity: 0; animation: fadeInUp 0.8s ease forwards 0.2s; }
+
+        .input-group { display: flex; background: var(--card); padding: 8px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 20px; border: 1px solid #222; }
+        input { flex: 1; background: transparent; border: none; color: white; padding: 15px 20px; font-size: 1rem; outline: none; }
         
-        .video-container { position: relative; padding-bottom: 56.25%; height: 0; background: #000; border-radius: 15px; overflow: hidden; border: 1px solid #333; }
-        iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-        
-        .proxy-status { margin-top: 15px; padding: 10px; background: rgba(0,255,136,0.1); border-radius: 8px; font-size: 0.85rem; color: var(--primary); text-align: center; }
-        .controls-hint { color: #888; font-size: 0.8rem; margin-top: 10px; text-align: center; }
+        button { background: var(--primary); color: #000; border: none; padding: 0 25px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: var(--transition); }
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 255, 163, 0.4); }
+
+        .video-box { position: relative; padding-bottom: 56.25%; background: #000; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.7); }
+        iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; opacity: 0; transition: opacity 1s ease; }
+        .loader-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #444; }
+
+        /* Кнопки действий */
+        .actions { display: flex; gap: 10px; margin-top: 20px; justify-content: center; }
+        .btn-action { background: #222; color: white; padding: 10px 20px; font-size: 0.9rem; }
+        .btn-action:hover { background: #333; color: var(--primary); }
+
+        /* Избранное */
+        .favorites { margin-top: 40px; width: 100%; text-align: left; }
+        .fav-item { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #222; transition: 0.3s; }
+        .fav-item:hover { border-color: var(--primary); }
+        .fav-info { cursor: pointer; flex: 1; }
+        .del-btn { color: #ff4444; cursor: pointer; margin-left: 15px; font-weight: bold; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
+    <div class="theme-picker">
+        <div class="dot" style="background: #0a0a0a;" onclick="setTheme('#0a0a0a', '#141414')"></div>
+        <div class="dot" style="background: #0d1117;" onclick="setTheme('#0d1117', '#161b22')"></div>
+        <div class="dot" style="background: #1a0b2e;" onclick="setTheme('#1a0b2e', '#2d144d')"></div>
+    </div>
+
     <header>
-        <h1>YODEX<span style="color:white">PROXY</span></h1>
+        <h1>YODEX PREMIUM</h1>
     </header>
 
-    <div class="main-container">
-        <div class="search-box">
-            <input type="text" id="videoUrl" placeholder="Вставьте ссылку на YouTube...">
-            <button onclick="loadProxyVideo()">ОТКРЫТЬ ЧЕРЕЗ ПРОКСИ</button>
+    <div class="container">
+        <div class="input-group">
+            <input type="text" id="vUrl" placeholder="Вставьте ссылку на YouTube...">
+            <button onclick="watch()">СМОТРЕТЬ</button>
         </div>
 
-        <div class="video-container" id="videoWrapper">
-            <div style="color: #444; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-                <p>Вставьте ссылку для обхода блокировки</p>
-                <small>Видео пойдет через защищенный туннель</small>
-            </div>
+        <div class="video-box" id="vBox">
+            <div class="loader-text" id="loader">Ожидание ссылки...</div>
+            <iframe id="vIframe" allowfullscreen allow="autoplay"></iframe>
         </div>
 
-        <div class="proxy-status">
-            📡 Режим: <b>Active Proxy (Invidious Tunnel)</b> — скрывает ваш IP и обходит замедление.
+        <div class="actions">
+            <button class="btn-action" onclick="addToFav()">★ В ИЗБРАННОЕ</button>
+            <button class="btn-action" onclick="downloadVideo()" style="background: #007bff; color: white;">⬇ СКАЧАТЬ</button>
         </div>
 
-        <div class="controls-hint">
-            * В этом режиме перемотка и выбор качества доступны в меню самого плеера (шестеренка внизу).
+        <div class="favorites" id="favListBlock" style="display:none;">
+            <h3>Моё Избранное</h3>
+            <div id="favsContainer"></div>
         </div>
     </div>
 
     <script>
-        function loadProxyVideo() {
-            const urlInput = document.getElementById('videoUrl').value;
-            const wrapper = document.getElementById('videoWrapper');
-            
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = urlInput.match(regExp);
+        let currentVideoId = "";
 
-            if (match && match[2].length == 11) {
-                const videoId = match[2];
-                // Используем случайное рабочее зеркало Invidious (проксирует трафик)
-                const instances = [
-                    'https://invidious.flokinet.to',
-                    'https://yewtu.be',
-                    'https://iv.ggtyler.dev',
-                    'https://invidious.lunar.icu'
-                ];
-                const randomInstance = instances[Math.floor(Math.random() * instances.length)];
-                
-                // Формируем ссылку для встраивания через прокси
-                wrapper.innerHTML = `<iframe src="${randomInstance}/embed/${videoId}?autoplay=1&quality=dash" allowfullscreen></iframe>`;
+        function setTheme(bg, card) {
+            document.documentElement.style.setProperty('--bg', bg);
+            document.documentElement.style.setProperty('--card', card);
+        }
+
+        function watch(idFromFav = null) {
+            const url = document.getElementById('vUrl').value;
+            const iframe = document.getElementById('vIframe');
+            const loader = document.getElementById('loader');
+            
+            let id = "";
+            if (idFromFav) {
+                id = idFromFav;
             } else {
-                alert("Пожалуйста, введите корректную ссылку!");
+                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+                const match = url.match(regExp);
+                if (match && match[2].length == 11) id = match[2];
+            }
+
+            if (id) {
+                currentVideoId = id;
+                const mirrors = [
+                    "https://invidious.asir.dev",
+                    "https://invidious.drgns.space",
+                    "https://inv.vern.cc",
+                    "https://iv.melmac.space"
+                ];
+                const selectedMirror = mirrors[Math.floor(Math.random() * mirrors.length)];
+                
+                iframe.style.opacity = "0";
+                loader.innerText = "Подключение...";
+                iframe.src = `${selectedMirror}/embed/${id}?autoplay=1`;
+                iframe.onload = () => { iframe.style.opacity = "1"; loader.style.opacity = "0"; };
+            } else {
+                alert("Неверная ссылка");
             }
         }
+
+        function downloadVideo() {
+            if (!currentVideoId) return alert("Сначала загрузите видео!");
+            // Открывает сервис скачивания для этого видео
+            window.open(`https://ssyoutube.com/watch?v=${currentVideoId}`, '_blank');
+        }
+
+        // Логика Избранного
+        function addToFav() {
+            if (!currentVideoId) return;
+            let favs = JSON.parse(localStorage.getItem('yodex_favs') || "[]");
+            if (!favs.includes(currentVideoId)) {
+                favs.push(currentVideoId);
+                localStorage.setItem('yodex_favs', JSON.stringify(favs));
+                renderFavs();
+            }
+        }
+
+        function deleteFav(id) {
+            let favs = JSON.parse(localStorage.getItem('yodex_favs') || "[]");
+            favs = favs.filter(f => f !== id);
+            localStorage.setItem('yodex_favs', JSON.stringify(favs));
+            renderFavs();
+        }
+
+        function renderFavs() {
+            const container = document.getElementById('favsContainer');
+            const block = document.getElementById('favListBlock');
+            let favs = JSON.parse(localStorage.getItem('yodex_favs') || "[]");
+            
+            if (favs.length > 0) {
+                block.style.display = "block";
+                container.innerHTML = favs.map(id => `
+                    <div class="fav-item">
+                        <div class="fav-info" onclick="watch('${id}')">▶ Видео ID: ${id}</div>
+                        <div class="del-btn" onclick="deleteFav('${id}')">Удалить</div>
+                    </div>
+                `).join('');
+            } else {
+                block.style.display = "none";
+            }
+        }
+
+        // Загрузить избранное при старте
+        renderFavs();
     </script>
 </body>
 </html>
+
 
 
