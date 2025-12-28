@@ -3,52 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Mirror - Просмотр без границ</title>
+    <title>Yodex Pro | Плеер с управлением</title>
     <style>
-        body { font-family: sans-serif; background-color: #181818; color: white; text-align: center; padding: 20px; }
-        .container { max-width: 800px; margin: auto; }
-        input { width: 70%; padding: 10px; border-radius: 5px; border: none; }
-        button { padding: 10px 20px; border-radius: 5px; border: none; background: #ff0000; color: white; cursor: pointer; }
-        #player-container { margin-top: 30px; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; }
-        #player-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-        .info { margin-top: 15px; font-size: 0.9em; color: #aaa; }
+        :root {
+            --primary: #ff0000;
+            --bg: #0b0b0b;
+            --surface: #1a1a1a;
+            --text: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            width: 100%;
+            padding: 15px 0;
+            background: var(--surface);
+            text-align: center;
+            border-bottom: 2px solid var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .main-container {
+            width: 95%;
+            max-width: 900px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            flex: 1;
+            background: var(--surface);
+            border: 1px solid #333;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Плеер */
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        #player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Панель управления */
+        .controls {
+            margin-top: 15px;
+            background: var(--surface);
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        select {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .rewind-btn {
+            background: #444;
+            padding: 5px 15px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>YouTube Mirror</h1>
-        <p>Вставьте ссылку на видео ниже:</p>
-        
-        <input type="text" id="videoLink" placeholder="https://www.youtube.com/watch?v=...">
-        <button onclick="playVideo()">Смотреть</button>
+    <header>
+        <h1>YODEX<span style="color:red">PRO</span></h1>
+    </header>
 
-        <div id="player-container">
-            <p style="padding-top: 20%;">Видео появится здесь</p>
+    <div class="main-container">
+        <div class="search-box">
+            <input type="text" id="videoUrl" placeholder="Вставьте ссылку на YouTube видео...">
+            <button onclick="loadNewVideo()">ЗАГРУЗИТЬ</button>
         </div>
 
-        <p class="info">Примечание: Мы используем альтернативный плеер для обхода блокировок.</p>
+        <div class="video-container">
+            <div id="player"></div>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <span>Перемотка:</span>
+                <button class="rewind-btn" onclick="seek(-10)">-10с</button>
+                <button class="rewind-btn" onclick="seek(10)">+10с</button>
+            </div>
+
+            <div class="control-group">
+                <span>Скорость:</span>
+                <select id="speed" onchange="changeSpeed()">
+                    <option value="0.5">0.5x</option>
+                    <option value="1" selected>Обычная</option>
+                    <option value="1.5">1.5x</option>
+                    <option value="2">2x</option>
+                </select>
+            </div>
+
+            <p style="font-size: 12px; color: #777; width: 100%; text-align: center;">
+                * Качество (разрешение) меняется автоматически кнопкой "HD/Настройки" внутри самого плеера.
+            </p>
+        </div>
     </div>
 
+    <script src="https://www.youtube.com/iframe_api"></script>
+
     <script>
-        function playVideo() {
-            const urlInput = document.getElementById('videoLink').value;
-            const container = document.getElementById('player-container');
-            
-            // Извлекаем ID видео из ссылки
-            let videoId = "";
+        let player;
+
+        // Инициализация плеера
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '100%',
+                width: '100%',
+                videoId: 'dQw4w9WgXcQ', // Видео по умолчанию
+                playerVars: {
+                    'rel': 0,
+                    'modestbranding': 1
+                }
+            });
+        }
+
+        function loadNewVideo() {
+            const url = document.getElementById('videoUrl').value;
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = urlInput.match(regExp);
+            const match = url.match(regExp);
 
             if (match && match[2].length == 11) {
-                videoId = match[2];
-                // Используем "инвайд" или "youtube-nocookie" в связке с прокси-плеером
-                // Один из самых стабильных способов — сервис piped или подобные инстансы
-                container.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>`;
+                player.loadVideoById(match[2]);
             } else {
-                alert("Пожалуйста, введите корректную ссылку на YouTube");
+                alert("Неверная ссылка!");
             }
+        }
+
+        // Функция перемотки
+        function seek(seconds) {
+            const currentTime = player.getCurrentTime();
+            player.seekTo(currentTime + seconds, true);
+        }
+
+        // Функция изменения скорости
+        function changeSpeed() {
+            const speed = document.getElementById('speed').value;
+            player.setPlaybackRate(parseFloat(speed));
         }
     </script>
 </body>
 </html>
+
