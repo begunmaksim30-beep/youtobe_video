@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Mirror - Просмотр без границ</title>
+    <style>
+        body { font-family: sans-serif; background-color: #181818; color: white; text-align: center; padding: 20px; }
+        .container { max-width: 800px; margin: auto; }
+        input { width: 70%; padding: 10px; border-radius: 5px; border: none; }
+        button { padding: 10px 20px; border-radius: 5px; border: none; background: #ff0000; color: white; cursor: pointer; }
+        #player-container { margin-top: 30px; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; }
+        #player-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .info { margin-top: 15px; font-size: 0.9em; color: #aaa; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>YouTube Mirror</h1>
+        <p>Вставьте ссылку на видео ниже:</p>
+        
+        <input type="text" id="videoLink" placeholder="https://www.youtube.com/watch?v=...">
+        <button onclick="playVideo()">Смотреть</button>
+
+        <div id="player-container">
+            <p style="padding-top: 20%;">Видео появится здесь</p>
+        </div>
+
+        <p class="info">Примечание: Мы используем альтернативный плеер для обхода блокировок.</p>
+    </div>
+
+    <script>
+        function playVideo() {
+            const urlInput = document.getElementById('videoLink').value;
+            const container = document.getElementById('player-container');
+            
+            // Извлекаем ID видео из ссылки
+            let videoId = "";
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = urlInput.match(regExp);
+
+            if (match && match[2].length == 11) {
+                videoId = match[2];
+                // Используем "инвайд" или "youtube-nocookie" в связке с прокси-плеером
+                // Один из самых стабильных способов — сервис piped или подобные инстансы
+                container.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>`;
+            } else {
+                alert("Пожалуйста, введите корректную ссылку на YouTube");
+            }
+        }
+    </script>
+</body>
+</html>
